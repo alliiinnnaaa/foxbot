@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <arg name="x" default="-0.7"/>
+    <arg name="y" default="0.0"/>
+    <arg name="z" default="0.0"/>
+
+    <arg name="robot_name" default="foxbot"/>
+
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find turtlebot3_gazebo)/worlds/turtlebot3_stage_4.world"/>
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>  
+
+     <!--This version was created because of some errors seen in the V1 that crashed Gazebo or went too slow in spawn -->
+     <!--Load the URDF into the ROS Parameter Server -->
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find foxbot_gazebo)/urdf/turtlebot3_waffle_pi.urdf.xacro"/>
+    
+
+     <!--Run a python script to send a service call to gazebo_ros to spawn a URDF robot -->
+    <node pkg="gazebo_ros" name="urdf_spawner" type="spawn_model" respawn="false" output="screen" args="-urdf -param foxbot_gazebo -model foxbot -x $(arg x) -y $(arg y) -z $(arg z) -model $(arg robot_name) -param robot_description"/>
+    
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"> <param name="use_gui" value="TRUE" /> </node>
+<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+</launch>
